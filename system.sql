@@ -1,19 +1,19 @@
-#대소문자 구별하지 않는다.(단 , 비밀번호는 대소문자를 구별한다.)
-#CREATE : 생성  ALTER  : 수정 / DROP : 삭제, DELETE : 삭제
-# 오라클 버전이 변경되면서 사용자 생성 시  C## 문자를 넣어서 만들도록 변경 됨
-#JAVADB => C## JABADB 이런 방식을 C## 사용하지 않겠음
+--대소문자 구별하지 않는다.(단 , 비밀번호는 대소문자를 구별한다.)
+--CREATE : 생성  ALTER  : 수정 / DROP : 삭제, DELETE : 삭제
+-- 오라클 버전이 변경되면서 사용자 생성 시  C## 문자를 넣어서 만들도록 변경 됨
+--JAVADB => C## JABADB 이런 방식을 C## 사용하지 않겠음
 
 ALTER SESSION SET "_ORACLE_SCRIPT" = TRUE;
 
-#USER 생성 SYS, SYSTEM 만 가능
-#USER 생성  (공간할당)
-#CREATE USER 사용자 이름 IDENTIFIED BY 비밀번호
+--USER 생성 SYS, SYSTEM 만 가능
+--USER 생성  (공간할당)
+--CREATE USER 사용자 이름 IDENTIFIED BY 비밀번호
 
 CREATE USER JAVADB IDENTIFIED BY 1234
  2  DEFAULT TABLESPACE USERS
  3  TEMPORARY TABLESPACE TMEP;
 
-​# GRANT 권한을 부여한다(사용자 생성만 해서는 아무것도 할 수 없다.)
+--​ GRANT 권한을 부여한다(사용자 생성만 해서는 아무것도 할 수 없다.)
 GRANT CONNECT, RESOURCE TO JAVADB;
 
 
@@ -23,3 +23,15 @@ CREATE USER SCOTT IDENTIFIED BY TIGER
 
 ​
 GRANT CONNECT, RESOURCE TO SCOTT;
+
+
+select * from all_users;
+
+GRANT UNLIMITED TABLESPACE TO SCOTT
+
+
+
+GRANT CONNECT,RESOURCE,UNLIMITED TABLESPACE TO SCOTT IDENTIFIED BY TIGER;
+ALTER USER SCOTT DEFAULT TABLESPACE USERS;
+ALTER USER SCOTT TEMPORARY TABLESPACE TEMP;
+
