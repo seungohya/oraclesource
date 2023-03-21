@@ -170,3 +170,87 @@ FROM
     employees
 WHERE
     commission_pct IS NOT NULL;
+
+SELECT
+    first_name,
+    last_name,
+    email,
+    phone_number,
+    lower(job_id)
+FROM
+    employees
+WHERE
+    first_name = 'Curtis';
+
+SELECT
+    employee_id,
+    first_name,
+    hire_date,
+    replace(job_id, 'IT_PROG', '프로그래머') AS job_id
+FROM
+    employees
+WHERE
+    department_id IN ( 60, 70, 80, 90 );
+
+SELECT
+    employee_id,
+    first_name
+    || ' '
+    || last_name AS full_name,
+    job_id,
+    department_id
+FROM
+    employees
+WHERE
+    job_id IN ( 'AD_PRES', 'PU_CLERK' );
+
+SELECT
+    MAX(salary) - MIN(salary)
+FROM
+    employees;
+
+SELECT
+    COUNT(DISTINCT(manager_id))
+FROM
+    employees;
+
+SELECT
+    department_id,
+    round(AVG(salary))
+FROM
+    employees
+GROUP BY
+    department_id
+ORDER BY
+    AVG(salary);
+
+SELECT
+    department_id,
+    nvl(AVG(commission_pct),
+        0),
+    employee_id
+FROM
+    employees
+GROUP BY
+    department_id,
+    employee_id;
+
+SELECT
+    department_id,
+    job_id,
+    round(AVG(salary))
+FROM
+    employees
+GROUP BY
+    department_id,
+    job_id
+HAVING
+    AVG(salary) >= 2000
+ORDER BY
+    department_id,
+    job_id;
+
+--first_name 이 Curtis 인 사람의 first_name, last_name, email, phone_number, job_id를 조회한다.
+--단, job_id 의 결과는 소문자로 출력되도록 한다.
+--부서번호가 60,70, 80, 90인 사원들의 employee_id, first_name, hire_date, job_id 조회 단, job_id가 IT_PROG 인 사원의 경우 프로그래머로 변경한 후 출력
+--JOB_ID가 AD_PRES, PU_CLERK 인 사원들의 employee_id, first_name, last_name,department_id,job_id를 조회한다. 단 사원명은 first_name과 last_name을 연결하여 출력하시오

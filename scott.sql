@@ -414,5 +414,334 @@ FROM
     emp;
 
 --trim, ltrim,rtrim,: 공백제거
-select  '      이것이         ' , trim ('         이것이         ')from dual;
+SELECT
+    '      이것이         ',
+    TRIM('         이것이         ')
+FROM
+    dual;
+
+SELECT
+    empno,
+    ename,
+    hiredate,
+    add_months(hiredate, 600)
+FROM
+    emp;
+
+SELECT
+    empno,
+    ename,
+    hiredate
+FROM
+    emp
+WHERE
+    months_between(sysdate, hiredate) < 540;
+
+SELECT
+    sysdate                AS current_date,
+    add_months(sysdate, 6) AS date_in_6_months
+FROM
+    dual;
+
+SELECT
+    empno,
+    ename,
+    hiredate,
+    sysdate,
+    trunc(months_between(hiredate, sysdate)) AS months1,
+    trunc(months_between(sysdate, hiredate)) AS months2,
+    trunc(months_between(sysdate, hiredate)) AS months3
+FROM
+    emp;
+
+--4) next_day(날짜, 요일): 특정 날짜를 기준으로 돌아오는 요일의 날짜 출력
+--last_day(날짜): 특정 날짜가 속한 달의 마지막 날짜를 출력
+SELECT
+    sysdate,
+    next_day(sysdate, 'FRIDAY'),
+    last_day(sysdate)
+FROM
+    dual;
+
+SELECT
+    sysdate,
+    round(sysdate, 'CC')   AS format_cc,
+    round(sysdate, 'YYYY') AS format_yyyy,
+    round(sysdate, 'DDD')  AS format_ddd,
+    round(sysdate, 'HH')   AS format_hh
+FROM
+    dual;
+
+SELECT
+    round(sysdate, 'cc')
+FROM
+    dual;
     
+    --형변환 함수 : 자료형을 형 변환
+    -- number, varchar2 , date 
+
+SELECT
+    empno,
+    ename,
+    empno + '500'
+FROM
+    emp
+WHERE
+    ename = 'FORD';
+
+SELECT
+    empno,
+    ename,
+    to_char(empno)
+    || 'ABCD' AS empno_abcd
+FROM
+    emp
+WHERE
+    ename = 'FORD';
+
+SELECT
+    empno,
+    ename,
+    TO_NUMBER(sal) + nvl(TO_NUMBER(comm),
+                         0) AS total_pay
+FROM
+    emp;
+
+--MON, MONTH,
+SELECT
+    to_char(sysdate, 'YYYY-MM-DD HH24:MI:SS') AS current_datetime,
+    to_char(sysdate, 'YYYY')                  AS current_datetime,
+    to_char(sysdate, 'MM')                    AS current_datetime,
+    to_char(sysdate, 'DD')                    AS current_datetime,
+    to_char(sysdate, 'HH12:MI:SS AM ')        AS current_datetime
+FROM
+    dual;
+
+SELECT
+    round(AVG(TO_NUMBER(sal))) AS avg_salary
+FROM
+    emp;
+
+SELECT
+    to_char(round(AVG(TO_NUMBER(sal))),
+            '999,999,999')
+    || ' 만원' AS avg_salary_with_currency
+FROM
+    emp;
+
+SELECT
+    concat(to_char(sal, '999,999,999'),
+           '만원') AS sal_with_unit
+FROM
+    emp;
+
+SELECT
+    empno,
+    ename,
+    decode(job, 'MANAGER', 'Manager', 'SALESMAN', 'Sales',
+           'CLERK', 'Clerical', 'Other') AS job_title
+FROM
+    emp;
+
+SELECT
+    empno,
+    ename,
+    job,
+    sal,
+    CASE job
+        WHEN 'MANAGER'  THEN
+            sal * 1.1
+        WHEN 'SALESMAN' THEN
+            sal * 1.05
+        WHEN 'ANALYST'  THEN
+            sal
+        ELSE
+            sal * 1.03
+    END AS new_salary
+FROM
+    emp;
+
+SELECT
+    empno,
+    ename,
+    job,
+    sal,
+    to_char(sal * decode(job, 'MANAGER', 1.1, 'SALESMAN', 1.05,
+                         'ANALYST', 1, 1.03),
+            'L999,999,999') AS new_salary
+FROM
+    emp
+ORDER BY
+    job DESC;
+
+SELECT
+    empno,
+    ename,
+    job,
+    sal,
+    CASE
+        WHEN comm IS NULL THEN
+            '해당사항 없음'
+        WHEN comm = 0 THEN
+            '수당없음'
+        WHEN comm > 0 THEN
+            '수당 : ' || comm
+    END AS comm_text
+FROM
+    emp;
+
+SELECT
+    empno,
+    ename,
+    job,
+    sal,
+    CASE
+        WHEN comm IS NULL THEN
+            '해당사항 없음'
+        WHEN comm = 0 THEN
+            '수당없음'
+        WHEN comm > 0 THEN
+            '수당 : ' || comm
+    END                     AS comm_text,
+    to_char(sal * decode(job, 'MANAGER', 1.1, 'SALESMAN', 1.05,
+                         'ANALYST', 1, 1.03),
+            'L999,999,999') AS new_salary
+FROM
+    emp
+ORDER BY
+    job DESC;
+
+SELECT
+    empno,
+    ename,
+    sal,
+    trunc(sal / 21.5, 2)     AS day_pay,
+    round(sal / 21.5 / 8, 1) AS time_pay
+FROM
+    emp;
+
+SELECT
+    empno,
+    ename,
+    hiredate,
+    to_char(next_working_day, 'DD-MM-YYYY') AS r_job,
+    CASE
+        WHEN comm IS NULL THEN
+            'n/a'
+        ELSE
+            to_char(comm, '$999,999.99')
+    END                                     AS comm_text
+FROM
+    (
+        SELECT
+            empno,
+            ename,
+            hiredate,
+            next_day(add_months(hiredate, 3) - 1,
+                     'FRIDAY') AS next_working_day,
+            comm
+        FROM
+            emp
+    );
+
+SELECT
+    empno,
+    ename,
+    job,
+    mgr,
+    coalesce(
+        CASE substr(mgr, 1, 2)
+            WHEN '75' THEN
+                '5555'
+            WHEN '76' THEN
+                '6666'
+            WHEN '77' THEN
+                '7777'
+            WHEN '78' THEN
+                '8888'
+        END,
+        '0000') AS chg_mgr
+FROM
+    emp;
+
+SELECT
+    empno,
+    ename,
+    job,
+    mgr,
+    decode(substr(mgr, 1, 2),
+           '75',
+           '5555',
+           '76',
+           '6666',
+           '77',
+           '7777',
+           '78',
+           '8888',
+           '0000') AS chg_mgr
+FROM
+    emp;
+
+SELECT
+    deptno,
+    job,
+    AVG(sal)
+FROM
+    emp
+WHERE
+    sal <= 3000
+GROUP BY
+    deptno,
+    job
+HAVING
+    AVG(sal) >= 2000
+ORDER BY
+    deptno,
+    job;
+--SELECT 절: "DEPTNO", "JOB", "AVG(SAL)" 컬럼을 선택합니다. "AVG(SAL)"은 각 그룹의 평균 급여를 계산한 결과입니다.
+--FROM 절: "EMP" 테이블을 대상으로 쿼리를 수행합니다.
+--WHERE 절: "SAL"이 3000 이하인 레코드들만을 선택합니다.
+--GROUP BY 절: "DEPTNO"와 "JOB"으로 그룹화합니다.
+--HAVING 절: 평균 "SAL" 값이 2000 이상인 그룹들만을 선택합니다.
+--ORDER BY 절: "DEPTNO"와 "JOB" 순으로 결과를 정렬합니다.
+
+SELECT
+    deptno,
+    trunc(AVG(sal)) AS avg_sal,
+    MAX(sal)        AS max_sal,
+    MIN(sal)        AS min_sal,
+    COUNT(*)        AS count_deptno
+FROM
+    emp
+GROUP BY
+    deptno;
+
+SELECT
+    job,
+    COUNT(*) AS emp_count
+FROM
+    emp
+GROUP BY
+    job
+HAVING
+    COUNT(*) >= 3;
+
+SELECT
+    EXTRACT(YEAR FROM hiredate) AS hire_year,
+    deptno,
+    COUNT(*)                    AS emp_count
+FROM
+    emp
+GROUP BY
+    EXTRACT(YEAR FROM hiredate),
+    deptno;
+
+SELECT
+    to_char(hiredate, 'YYYY') AS hire_year,
+    deptno,
+    COUNT(*)                  AS emp_count
+FROM
+    emp
+GROUP BY
+    to_char(hiredate, 'YYYY'),
+    deptno;
