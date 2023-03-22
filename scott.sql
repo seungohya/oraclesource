@@ -745,3 +745,393 @@ FROM
 GROUP BY
     to_char(hiredate, 'YYYY'),
     deptno;
+    
+    --서브쿼리
+    --sql 문을 실행하는데 필요한 데이터를 추가로 조회하기 위해 sql문 내부에서 사용하는 select 문
+
+--SELECT 조회할 열
+--FROM 테이블명
+--WHERE 조건식(SELECT 조회할 열 FROM 테이블 WHERE 조건식)
+
+SELECT
+    sal
+FROM
+    emp
+WHERE
+    ename = 'JONES'; --2975
+
+
+SELECT
+    sal
+FROM
+    emp
+WHERE
+    sal > 2975;
+
+SELECT
+    sal
+FROM
+    emp
+WHERE
+    ename = 'JONES'
+    OR sal > (
+        SELECT
+            MAX(sal)
+        FROM
+            emp
+        WHERE
+            sal <= 2975
+    );
+    
+    --사원이름이 allen 인 사원의 추가 수당보다 많은 추가수당을 받는 사원 조회
+SELECT
+    *
+FROM
+    emp
+WHERE
+    comm > (
+        SELECT
+            comm
+        FROM
+            emp
+        WHERE
+            ename = 'ALLEN'
+    );
+
+SELECT
+    *
+FROM
+    emp
+WHERE
+    hiredate < (
+        SELECT
+            hiredate
+        FROM
+            emp
+        WHERE
+            ename = 'WARD'
+    );
+    
+    --20번 부서에 속한 사원 중 전체 사원의 평균 급여보다 높은 급여를 받는 사원정보및
+    --부서정보 조회
+    -- 사원번호, 사원명, 직무, 급여, 부서번호, 부서명, 지역
+SELECT
+    e.empno,
+    e.ename,
+    e.job,
+    e.sal,
+    d.deptno,
+    d.dname,
+    d.loc
+FROM
+         emp e
+    INNER JOIN dept d ON e.deptno = d.deptno
+WHERE
+        e.sal > (
+            SELECT
+                AVG(sal)
+            FROM
+                emp
+            WHERE
+                deptno = 20
+        )
+    AND e.deptno = 20;
+
+SELECT
+    e.empno,
+    e.ename,
+    e.job,
+    e.sal,
+    d.deptno,
+    d.dname,
+    d.loc
+FROM
+         emp e
+    JOIN dept d ON e.deptno = d.deptno
+WHERE
+        e.deptno = 20
+    AND e.sal <= (
+        SELECT
+            AVG(sal)
+        FROM
+            emp
+    );
+
+SELECT
+    deptno,
+    MAX(sal)
+FROM
+    emp
+GROUP BY
+    deptno;
+
+SELECT
+    e.empno,
+    e.ename,
+    e.sal,
+    e.deptno
+FROM
+         emp e
+    INNER JOIN (
+        SELECT
+            deptno,
+            MAX(sal) AS max_sal
+        FROM
+            emp
+        GROUP BY
+            deptno
+    ) max_sal_per_dept ON e.deptno = max_sal_per_dept.deptno
+WHERE
+    e.sal = max_sal_per_dept.max_sal;
+
+SELECT
+    e.empno,
+    e.ename,
+    e.sal,
+    e.deptno
+FROM
+         emp e
+    INNER JOIN dept d ON e.deptno = d.deptno
+GROUP BY
+    e.empno,
+    e.ename,
+    e.sal,
+    e.deptno
+HAVING
+    e.sal = MAX(e.sal)
+            OVER(PARTITION BY e.deptno);
+
+SELECT
+    e.empno,
+    e.ename,
+    e.sal,
+    e.deptno
+FROM
+         emp e
+    INNER JOIN dept d ON e.deptno = d.deptno
+WHERE
+    e.sal = (
+        SELECT
+            MAX(sal)
+        FROM
+            emp
+        WHERE
+            deptno = e.deptno
+    );
+
+SELECT
+    *
+FROM
+    emp
+WHERE
+    sal IN (
+        SELECT
+            MAX(sal)
+        FROM
+            emp
+        GROUP BY
+            deptno
+    );
+
+SELECT
+    *
+FROM
+    emp
+WHERE
+    sal < SOME (
+        SELECT
+            sal
+        FROM
+            emp
+        WHERE
+            deptno = 30
+    );
+
+SELECT
+    *
+FROM
+    emp
+WHERE
+    sal < ANY (
+        SELECT
+            sal
+        FROM
+            emp
+        WHERE
+            deptno = 30
+    );
+
+SELECT
+    *
+FROM
+    emp
+WHERE
+    EXISTS (
+        SELECT
+            dname
+        FROM
+            dept
+        WHERE
+            deptno = 10
+    );
+
+SELECT
+    e.*,
+    d.*
+FROM
+         emp e
+    JOIN dept d ON e.deptno = d.deptno
+WHERE
+    e.job = (
+        SELECT
+            job
+        FROM
+            emp
+        WHERE
+            ename = 'ALLEN'
+    );
+
+SELECT
+    e.*,
+    d.*
+FROM
+    emp  e,
+    dept d
+WHERE
+        e.deptno = d.deptno
+    AND e.job = (
+        SELECT
+            job
+        FROM
+            emp
+        WHERE
+            ename = 'ALLEN'
+    );
+
+SELECT
+    e.*,
+    d.*,
+    s.grade
+FROM
+    emp      e,
+    dept     d,
+    salgrade s
+WHERE
+        e.sal > (
+            SELECT
+                AVG(sal)
+            FROM
+                emp
+        )
+    AND e.deptno = d.deptno
+    AND e.sal BETWEEN s.losal AND s.hisal
+ORDER BY
+    e.sal DESC,
+    e.empno ASC;
+
+SELECT
+    *
+FROM
+    emp
+WHERE
+    ( deptno, sal ) IN (
+        SELECT
+            deptno, MAX(sal)
+        FROM
+            emp
+        GROUP BY
+            deptno
+    );
+
+SELECT
+    ename,
+    sal
+FROM
+    (
+        SELECT
+            ename,
+            sal
+        FROM
+            emp
+        WHERE
+            sal > 50000
+    ) high_paid_employees;
+
+SELECT
+    empno,
+    ename,
+    job,
+    sal,
+    (
+        SELECT
+            grade
+        FROM
+            salgrade
+        WHERE
+            e.sal BETWEEN losal AND hisal
+    ) AS salgrade,
+    deptno,
+    (
+        SELECT
+            dname
+        FROM
+            dept
+        WHERE
+            e.deptno = dept.deptno
+    ) AS dname
+FROM
+    emp e;
+
+SELECT
+    emp.empno,
+    emp.ename,
+    emp.sal,
+    emp.deptno
+FROM
+    emp,
+    (
+        SELECT
+            deptno,
+            AVG(sal) AS avg_sal
+        FROM
+            emp
+        GROUP BY
+            deptno
+    ) dept_sal_avg
+WHERE
+        emp.deptno = dept_sal_avg.deptno
+    AND emp.sal > dept_sal_avg.avg_sal;
+
+
+SELECT empno, ename, job, sal,
+(SELECT grade FROM salgrade WHERE e.sal BETWEEN losal AND hisal) AS salgrade, deptno,
+
+(SELECT dname FROM dept WHERE ( e.deptno = dept.deptno )  as dname
+FROM emp e;
+
+SELECT e.empno,e.ename,e.job, d.deptno,d.dname,d.loc
+FROM emp e, dept d
+WHERE e.deptno = d.deptno AND e.deptno = 10 AND not EXISTS (
+    SELECT *
+    FROM emp
+    WHERE deptno = 30 AND job = e.job
+);
+
+SELECT e.empno, e.ename, e.sal, sg.grade, e.deptno
+FROM emp e, salgrade sg
+WHERE e.sal > (
+    SELECT MAX(sal)
+    FROM emp
+    WHERE job = 'SALESMAN'
+) AND e.sal BETWEEN sg.losal AND sg.hisal
+
+ORDER BY e.empno ASC;
+
+SELECT e.empno, e.ename, e.sal, sg.grade, e.deptno
+FROM emp e , salgrade sg
+WHERE e.sal > all(
+    SELECT sal
+    FROM emp
+    WHERE job = 'SALESMAN'
+) AND e.sal BETWEEN sg.losal AND sg.hisal
+ORDER BY e.empno ASC;

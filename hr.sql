@@ -250,7 +250,124 @@ ORDER BY
     department_id,
     job_id;
 
+SELECT
+    e1.department_id,
+    concat(e1.first_name, ' ', e1.last_name) AS name,
+    e1.salary,
+    e1.hire_date
+FROM
+         employees e1
+    INNER JOIN employees e2 ON e1.department_id = e2.department_id
+WHERE
+        e1.salary > e2.salary
+    AND e1.hire_date > e2.hire_date
+ORDER BY
+    e1.department_id,
+    e1.salary DESC;
+
 --first_name 이 Curtis 인 사람의 first_name, last_name, email, phone_number, job_id를 조회한다.
 --단, job_id 의 결과는 소문자로 출력되도록 한다.
 --부서번호가 60,70, 80, 90인 사원들의 employee_id, first_name, hire_date, job_id 조회 단, job_id가 IT_PROG 인 사원의 경우 프로그래머로 변경한 후 출력
 --JOB_ID가 AD_PRES, PU_CLERK 인 사원들의 employee_id, first_name, last_name,department_id,job_id를 조회한다. 단 사원명은 first_name과 last_name을 연결하여 출력하시오
+
+SELECT
+    e1.employee_id,
+    e1.last_name
+FROM
+    employees e1
+WHERE
+    e1.last_name LIKE '%u%'
+    AND e1.department_id IN (
+        SELECT
+            e2.department_id
+        FROM
+            employees e2
+        WHERE
+            e2.employee_id = e1.employee_id
+    );
+
+SELECT
+    e.last_name,
+    e.job_id,
+    e.salary
+FROM
+    employees e
+WHERE
+    e.salary > (
+        SELECT
+            MAX(salary)
+        FROM
+            employees
+        WHERE
+            job_id = 'SA_MAN'
+    );\
+SELECT
+    e1.last_name,
+    e1.department_id,
+    e1.salary
+FROM
+    employees e1
+WHERE
+    e1.commission_pct IS NOT NULL
+    AND e1.department_id IN (
+        SELECT
+            e2.department_id
+        FROM
+            employees e2
+        WHERE
+            e2.salary = e1.salary
+    );
+
+SELECT
+    e1.employee_id,
+    e1.last_name,
+    e1.salary
+FROM
+    employees e1
+WHERE
+        e1.salary > (
+            SELECT
+                AVG(salary)
+            FROM
+                employees
+        )
+    AND e1.department_id IN (
+        SELECT
+            department_id
+        FROM
+            employees
+        WHERE
+            last_name LIKE '%u%'
+    )
+ORDER BY
+    e1.employee_id;
+
+SELECT
+    e1.last_name,
+    e1.hire_date
+FROM
+    employees e1
+WHERE
+    e1.hire_date > ANY (
+        SELECT
+            hire_date
+        FROM
+            employees
+        WHERE
+            last_name = 'Davies'
+    );
+
+SELECT
+    last_name,
+    salary
+FROM
+    employees
+WHERE
+    manager_id IN (
+        SELECT
+            employee_id
+        FROM
+            employees
+        WHERE
+            last_name = 'King'
+    );
