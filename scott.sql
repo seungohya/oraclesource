@@ -1107,31 +1107,282 @@ SELECT empno, ename, job, sal,
 (SELECT grade FROM salgrade WHERE e.sal BETWEEN losal AND hisal) AS salgrade, deptno,
 
 (SELECT dname FROM dept WHERE ( e.deptno = dept.deptno )  as dname
-FROM emp e;
+FROM emp
+e;
 
-SELECT e.empno,e.ename,e.job, d.deptno,d.dname,d.loc
-FROM emp e, dept d
-WHERE e.deptno = d.deptno AND e.deptno = 10 AND not EXISTS (
-    SELECT *
-    FROM emp
-    WHERE deptno = 30 AND job = e.job
+SELECT
+    e.empno,
+    e.ename,
+    e.job,
+    d.deptno,
+    d.dname,
+    d.loc
+FROM
+    emp  e,
+    dept d
+WHERE
+        e.deptno = d.deptno
+    AND e.deptno = 10
+        AND NOT EXISTS (
+        SELECT
+            *
+        FROM
+            emp
+        WHERE
+                deptno = 30
+            AND job = e.job
+    );
+
+SELECT
+    e.empno,
+    e.ename,
+    e.sal,
+    sg.grade,
+    e.deptno
+FROM
+    emp      e,
+    salgrade sg
+WHERE
+        e.sal > (
+            SELECT
+                MAX(sal)
+            FROM
+                emp
+            WHERE
+                job = 'SALESMAN'
+        )
+    AND e.sal BETWEEN sg.losal AND sg.hisal
+ORDER BY
+    e.empno ASC;
+
+SELECT
+    e.empno,
+    e.ename,
+    e.sal,
+    sg.grade,
+    e.deptno
+FROM
+    emp      e,
+    salgrade sg
+WHERE
+    e.sal > ALL (
+        SELECT
+            sal
+        FROM
+            emp
+        WHERE
+            job = 'SALESMAN'
+    )
+    AND e.sal BETWEEN sg.losal AND sg.hisal
+ORDER BY
+    e.empno ASC;
+
+--연습용 테이블 생성 create talble 
+-- 기존 테이블 복사 select from ~ 
+-- 테이블 삭제 - drop table ~
+CREATE TABLE dept_temp
+    AS
+        SELECT
+            *
+        FROM
+            dept;
+
+-- 열 이름은 선택사항이다.
+-- insert into 테이블 이름 (열이름 1, 열이름 2 ...)
+-- values (데이터 1 , 데이터2...)
+
+--dept_temp 에 새로운 부서 추가
+INSERT INTO dept_temp (
+    deptno,
+    dname,
+    loc
+) VALUES (
+    50,
+    'DATABASE',
+    'SEOUL'
 );
 
-SELECT e.empno, e.ename, e.sal, sg.grade, e.deptno
-FROM emp e, salgrade sg
-WHERE e.sal > (
-    SELECT MAX(sal)
-    FROM emp
-    WHERE job = 'SALESMAN'
-) AND e.sal BETWEEN sg.losal AND sg.hisal
 
-ORDER BY e.empno ASC;
+INSERT INTO dept_temp (deptno, dname, loc)
+VALUES (60, 'DATABASE', 'BUSAN');
 
-SELECT e.empno, e.ename, e.sal, sg.grade, e.deptno
-FROM emp e , salgrade sg
-WHERE e.sal > all(
-    SELECT sal
-    FROM emp
-    WHERE job = 'SALESMAN'
-) AND e.sal BETWEEN sg.losal AND sg.hisal
-ORDER BY e.empno ASC;
+INSERT ALL
+INTO dept_temp (deptno, dname, loc) VALUES (50, 'DATABASE', 'SEOUL')
+INTO dept_temp (deptno, dname, loc) VALUES (60, 'MARKETING', 'NEW YORK')
+INTO dept_temp (deptno, dname, loc) VALUES (70, 'RESEARCH', 'CHICAGO')
+INTO dept_temp (deptno, dname, loc) VALUES (80, 'SALES', 'DALLAS')
+INTO dept_temp (deptno, dname, loc) VALUES (90, 'OPERATIONS', 'BOSTON')
+SELECT 1 FROM DUAL;
+
+-- EMP_TEMP  생성 (EMP 테이블 복사 - 데이터는 복사하지 않을때)
+--구조만 복사
+CREATE TABLE EMP_TEMP AS SELECT * FROM EMP WHERE 1<>1;
+
+
+
+
+
+-- 열이름 제거할때
+INSERT INTO dept_tmep VALUES (
+    60,
+    'NETWORK',
+    'BUSAN'
+);
+
+--insert  오류 예시
+INSERT INTO dept_tmep VALUES (
+    60,
+    'NETWORK',
+    'BUSAN'
+);
+
+
+ALTER TABLE dept_temp MODIFY (deptno NUMBER(3));
+
+
+
+
+INSERT INTO emp_temp(empno, ename, job, mgr, hiredate, sal, comm, deptno) 
+VALUES (2222, '이순신', 'MANAGER', 9999, TO_DATE('07/01/2001', 'DD/MM/YYYY'), 4000, NULL, 20);
+INSERT INTO emp_temp (empno, ename, job, mgr, hiredate, sal, comm, deptno)
+VALUES (3333,'성춘향', 'MANAGER', 9999, SYSDATE, 4000, NULL, 30);
+
+
+SELECT * FROM  EMP_TEMP;
+
+INSERT INTO emp_temp(empno, ename, job, mgr, hiredate, sal, comm, deptno)
+SELECT e.empno, e.ename, e.job, e.mgr, e.hiredate, e.sal, e.comm, e.deptno
+FROM emp e
+INNER JOIN salgrade s ON e.sal BETWEEN s.losal AND s.hisal
+WHERE s.grade = 1;
+
+--UPDATE: 테이블에 있는 데이터 변경하는 SQL 명령어입니다
+
+--UPDATE 테이블명 
+--SET 열1=값1, 열2=값2, ...
+--WHERE 조건
+
+--예를 들어, emp 테이블에서 사원 번호(empno)가 
+--7369인 사원의 급여(sal)를 3000으로 변경하고자 한다면 다음과 같은 
+--UPDATE 구문을 사용할 수 있습니다.
+
+--UPDATE emp
+--SET sal = 3000
+--WHERE empno = 7369;
+COMMIT;
+
+--COMMIT
+--현재 트랜잭션을 확정하고 이전에 실행한 데이터 변경 작업을 영구적으로 저장합니다.
+--ROLLBACK
+--현재 트랜잭션의 변경 사항을 모두 취소하고, 이전에 실행한 데이터 변경 작업을 모두 취소합니다
+
+SELECT * FROM emp_TEMP;
+
+UPDATE emp_ temp
+SET comm = 50
+WHERE sal<= 2500;
+
+
+
+
+UPDATE dept_temp
+SET (dname, loc) = (SELECT dname, loc
+FROM dept WHERE deptno = 40)
+WHERE deptno=60;
+
+create table emp_temp2
+    AS
+        SELECT
+            *
+        FROM
+            emp;
+
+delete emp_temp2 
+where job = 'SALESMAN';
+
+select * from emp_temp2;
+rollback;
+
+delete from emp_temp2
+where empno in(
+select e.empno
+from emp_temp2 e, salgrade s
+where e.sal between s.losal and s.hisal and s.grade = 3 and e.deptno = 30);
+
+CREATE TABLE exam_emp AS
+SELECT *
+FROM emp;
+
+CREATE TABLE exam_dept AS
+SELECT *
+FROM dept;
+
+CREATE TABLE exam_salgrade AS
+SELECT *
+FROM salgrade;
+
+INSERT INTO exam_emp (empno, ename, job, mgr, hiredate, sal, comm, deptno)
+VALUES (7201, 'TEST_USER1', 'MANAGER', 7788, TO_DATE('2016-01-02', 'YYYY-MM-DD'), 4500, NULL, 50);
+
+-- Inserting TEST_USER2
+INSERT INTO exam_emp (empno, ename, job, mgr, hiredate, sal, comm, deptno)
+VALUES (7202, 'TEST_USER2', 'CLERK', 7201, TO_DATE('2016-02-21', 'YYYY-MM-DD'), NULL, NULL, 50);
+
+-- Inserting TEST_USER3
+INSERT INTO exam_emp (empno, ename, job, mgr, hiredate, sal, comm, deptno)
+VALUES (7203, 'TEST_USER3', 'ANALYST', 7201, TO_DATE('2016-04-11', 'YYYY-MM-DD'), 3400, NULL, 60);
+
+-- Inserting TEST_USER4
+INSERT INTO exam_emp (empno, ename, job, mgr, hiredate, sal, comm, deptno)
+VALUES (7204, 'TEST_USER4', 'SALESMAN', 7201, TO_DATE('2016-05-31', 'YYYY-MM-DD'), 2700, 300, 60);
+
+-- Inserting TEST_USER5
+INSERT INTO exam_emp (empno, ename, job, mgr, hiredate, sal, comm, deptno)
+VALUES (7205, 'TEST_USER5', 'CLERK', 7201, TO_DATE('2016-07-20', 'YYYY-MM-DD'), 2600, NULL, 70);
+
+-- Inserting TEST_USER6
+INSERT INTO exam_emp (empno, ename, job, mgr, hiredate, sal, comm, deptno)
+VALUES (7206, 'TEST_USER6', 'CLERK', 7201, TO_DATE('2016-09-08', 'YYYY-MM-DD'), 2600, NULL, 70);
+
+-- Inserting TEST_USER7
+INSERT INTO exam_emp (empno, ename, job, mgr, hiredate, sal, comm, deptno)
+VALUES (7207, 'TEST_USER7', 'LECTURER', 7201, TO_DATE('2016-10-28', 'YYYY-MM-DD'), 2300, NULL, 80);
+
+-- Inserting TEST_USER8
+INSERT INTO exam_emp (empno, ename, job, mgr, hiredate, sal, comm, deptno)
+VALUES (7208, 'TEST_USER8', 'STUDENT', 7201, TO_DATE('2018-03-09', 'YYYY-MM-DD'), 1200, NULL, 80);
+
+
+UPDATE exam_emp
+SET deptno = 70
+WHERE sal > (
+  SELECT AVG(sal)
+  FROM exam_emp
+  WHERE deptno = 50
+);
+select * from exam_emp;
+
+update exam_emp
+set sal=sal*1.1 , deptno = 80
+where hiredate >
+(select min(hiredate) from exam_emp where deptno=60);
+
+DELETE FROM exam_emp
+WHERE empno IN (
+  SELECT e.empno
+  FROM emp e
+  JOIN salgrade s
+  ON e.sal BETWEEN s.losal AND s.hisal
+  WHERE s.grade = 5
+);
+
+--트랜잭션 : 최소수행 단위
+--트랜잭션 제어하는 구문 TCL (Transaction Control Language)
+
+create table dept_tcl as select * from dept;
+
+insert into dept_tcl values (50,'DATABASE','SEOUL');
+
+update dept_tcl set loc = 'BUSAN' where deptno = 40;
+
+delete from dept_tcl where dname = 'RESRCH';

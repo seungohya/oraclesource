@@ -300,7 +300,8 @@ WHERE
             employees
         WHERE
             job_id = 'SA_MAN'
-    );\
+    );
+
 SELECT
     e1.last_name,
     e1.department_id,
@@ -341,6 +342,18 @@ WHERE
     )
 ORDER BY
     e1.employee_id;
+
+SELECT employee_id, last_name, salary
+-- employee_id, last_name, salary 컬럼을 선택합니다.
+FROM (
+    SELECT DISTINCT department_id -- 중복되지 않는 부서 ID를 선택합니다.
+    FROM employees
+    WHERE salary > (SELECT ROUND(AVG(salary), 0) FROM employees) -- 직원들의 평균 월급보다 높은 월급을 가진 직원을 선택합니다.
+        AND last_name LIKE '%u%' -- 이름의 마지막에 "u "가 포함된 직원을 선택합니다.
+) dept, employees e -- "employees" 테이블과 "dept" 서브쿼리의 결과를 결합합니다.
+WHERE e.department_id = dept.department_id -- 부서 ID를 기준으로 "employees"와 "dept"를 조인합니다.
+ORDER BY employee_id; -- employee_id 기준으로 오름차순으로 정렬합니다.
+
 
 SELECT
     e1.last_name,
